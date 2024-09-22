@@ -1,12 +1,8 @@
 name: Create and publish a Docker image
 
-on:
-  push:
-    tags:
-      - '*'
+on: workflow_dispatch
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAME: keocheung/download-webhook
 
 jobs:
@@ -25,25 +21,12 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v2
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.PACKAGES_TOKEN }}
  
       - name: Extract metadata (tags, labels) for Docker Hub
         id: meta_dockerhub
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.IMAGE_NAME }}
-
-      - name: Extract metadata (tags, labels) for GitHub Container Registry
-        id: meta_ghcr
-        uses: docker/metadata-action@v4
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
@@ -52,5 +35,4 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta_dockerhub.outputs.tags }}
-            ${{ steps.meta_ghcr.outputs.tags }}
-          labels: ${{ steps.meta_ghcr.outputs.labels }}
+          labels: ${{ steps.meta_dockerhub.outputs.labels }}
