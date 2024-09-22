@@ -1,6 +1,10 @@
 name: Create and publish a Docker image
 
-on: workflow_dispatch
+on: 
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 * * 1' 
+  
 
 env:
   IMAGE_NAME: keocheung/download-webhook
@@ -27,6 +31,7 @@ jobs:
         uses: docker/metadata-action@v4
         with:
           images: ${{ env.IMAGE_NAME }}
+          tags: type=schedule,pattern=nightly
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v4
